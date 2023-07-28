@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  api_removebackground:
+    container_name: "api_removebackground"
+    image: rmbg:lasted
+    #build: 
+    #  context: api_removebackground
+    #  dockerfile: Dockerfile
+    ports:
+      - "8000:3001"
+    #volumes:
+    #  - ./:/data

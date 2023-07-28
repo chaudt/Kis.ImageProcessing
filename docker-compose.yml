@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  remove_background:
+    build:
+      context: ../RemoveBackground
+      dockerfile: Dockerfile
+    image: rmbg:0.0.1 # image được tạo trong hệ thống hoặc trên dockerhub
+    container_name: remove_background
+    ports:
+      - "127.0.0.1:3002:3001"
+    restart: always
+    mem_limit: 5g # memory limit for container
+    memswap_limit: 5g # phân vùng bộ nhớ tạm
+    volumes:
+      - E:\CHAU\SOURCE-GIT\RemoveBackground\files:/data
+#docker-compose --file ./docker-compose.yml up --detach

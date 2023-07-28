@@ -1,0 +1,22 @@
+name: removebg_env
+channels:
+        - conda-forge
+
+dependencies:
+        - python=3.8.1
+        #- websockets
+        #- imutils
+        #- pip=21.2.2
+        - pip=23.1.2
+        - pip:
+          - transparent-background
+          - opencv-python
+          - numpy
+          - fastapi
+          - uvicorn
+          - python-multipart
+          - Pillow
+          - pydantic
+          
+          
+          
