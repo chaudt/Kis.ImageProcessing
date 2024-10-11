@@ -1,7 +1,7 @@
-from fastapi  import FastAPI, File, UploadFile
+#from fastapi  import FastAPI, File, UploadFile
 import uvicorn
-from rembg import remove
-import io
+#from rembg import remove
+#import io
 import PIL.Image as Image
 import os
 
@@ -73,4 +73,12 @@ def test_loop(path_png:str):
 
 
 if __name__=='__main__':
-    test_loop('C:\\Users\\Chau\\Downloads\\change_bg\\Photo11.bmp')
+    #test_loop('C:\\Users\\Chau\\Downloads\\change_bg\\Photo11.bmp')
+    from pathlib import Path
+    import os
+    import shutil
+    # Build paths inside the project like this: BASE_DIR / 'subdir'.
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    print(BASE_DIR)
+    l = BASE_DIR / "chau"
+    print('location:',l)

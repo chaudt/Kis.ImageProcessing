@@ -80,7 +80,7 @@ class ImageProcessingForKis:
             out_default = Image.fromarray(out).convert('RGB')
             
             out = remover.process(out_default, type='rgba')
-            print('step4')
+            print('step5')
             t7 = time.time()
             img_rgba = Image.fromarray(out)#.save(new_path_img)
             imgio = io.BytesIO()
@@ -107,7 +107,6 @@ def hello():
 @app.post("/api/removebackgrounds/")
 def remove_background(image_file: UploadFile = File(...),api_key: str = Security(get_api_key)):
     print('root current:',DATA_PATH)
-    
     if not image_file:
         return {'message':"No upload file sent"}
     else:
@@ -123,10 +122,40 @@ def remove_background(image_file: UploadFile = File(...),api_key: str = Security
         except Exception as ex:
             print(f'Có lỗi trong quá trình xử lý:{ex}')
             return {"message": f"There was an error uploading the file: Details={ex}"}
+    
    
-
+@app.post("/api/change-backgrounds/")
+def change_background(image_file:UploadFile = File(...),api_key: str = Security(get_api_key)):
+    if not image_file:
+        return {'message':"No upload file sent"}
+    else:
+        print('filename=',os.path.join(DATA_PATH,image_file.filename))
+        
+        try:
+            contents = image_file.file.read()
+            nparr = np.fromstring(contents, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            print('-->frame type=',type(frame))
+            height, width, channels = frame.shape
+            print(f'-->height={height},width={width},channels={channels}')
+            background = Image.new(mode = "RGB", size = (width, height),
+                           color = (0, 255, 0))
+            # save image to bytes
+            background.save(r'C:\Users\Chau\Downloads\lane01-checkarea\bg.png')
+            print('save image ok')
+            remover = Remover(device='cpu',ckpt='./latest.pth')
+            frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+            t4 = time.time()
+            print('step3')
+            image = Image.fromarray(frame).convert('RGB')
+            out = remover.process(image, type=r'C:\Users\Chau\Downloads\lane01-checkarea\bg.png') # use another image as a background
+            Image.fromarray(out).save(r'C:\Users\Chau\Downloads\lane01-checkarea\att.png')
+            return True
+        except Exception as ex:
+            print(f'Có lỗi trong quá trình xử lý:{ex}')
+            return {"message": f"There was an error uploading the file: Details={ex}"}
 if __name__=='__main__':
     print('remove backgound service - new version')
 
-    uvicorn.run(app, host="0.0.0.0", port=3001)
-    #uvicorn.run(app, host="127.0.0.1", port=8001)
+    #uvicorn.run(app, host="0.0.0.0", port=3001)
+    uvicorn.run(app, host="127.0.0.1", port=8001)
