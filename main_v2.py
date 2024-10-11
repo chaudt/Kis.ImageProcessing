@@ -47,19 +47,19 @@ def get_api_key(
     )
 
 
-app = FastAPI()
 
 
 class ImageProcessingForKis:
     def __init__(self) -> None:
-        pass
+        self.remover = Remover(fast=True, jit=True, device='cuda:0', ckpt='~/latest.pth')
+
 
     def remove_background(self, contents):
         # download from endpoint: https://drive.google.com/uc?id=13oBl5MTVcWER3YU4fSxW3ATlVfueFQPY
         print('-->remove background called: hello world')
         try:
             t1 = time.time()
-            remover = Remover(device='cpu',ckpt='./latest.pth')
+            #remover = Remover(device='cpu',ckpt='./latest.pth')
             t2 = time.time(); 
             print('step1')
             nparr = np.fromstring(contents, np.uint8)
@@ -71,7 +71,7 @@ class ImageProcessingForKis:
             t4 = time.time()
             print('step3')
             image = Image.fromarray(frame).convert('RGB')
-            out = remover.process(image)
+            out = self.remover.process(image)
             t5 = time.time()
             print('step4')
             #extract_folder = './data/transparent_bgs'
@@ -79,7 +79,7 @@ class ImageProcessingForKis:
             #Image.fromarray(out).save(new_path_img)
             out_default = Image.fromarray(out).convert('RGB')
             
-            out = remover.process(out_default, type='rgba')
+            out = self.remover.process(out_default, type='rgba')
             print('step5')
             t7 = time.time()
             img_rgba = Image.fromarray(out)#.save(new_path_img)
@@ -100,6 +100,10 @@ class ImageProcessingForKis:
             print(f'step 6: convert img to byte-io:{t8-t7} seconds')
             print(f'total time processing:{t8-t1} seconds')
 
+
+app = FastAPI()
+kis = ImageProcessingForKis()
+
 @app.get("/api/removebackgrounds/")
 def hello():
     return "Remove background hello world"
@@ -115,8 +119,7 @@ def remove_background(image_file: UploadFile = File(...),api_key: str = Security
         try:
             contents = image_file.file.read()
             
-            # save image to bytes
-            kis = ImageProcessingForKis()
+           
             imgio = kis.remove_background(contents)
             return StreamingResponse(content=imgio, media_type="image/png")
         except Exception as ex:
@@ -157,5 +160,6 @@ def change_background(image_file:UploadFile = File(...),api_key: str = Security(
 if __name__=='__main__':
     print('remove backgound service - new version')
 
-    #uvicorn.run(app, host="0.0.0.0", port=3001)
-    uvicorn.run(app, host="127.0.0.1", port=8001)
+    uvicorn.run(app, host="0.0.0.0", port=3001)
+    #uvicorn.run(app, host="127.0.0.1", port=8001)
+    uvicorn.run(app, host="192.168.57.14", port=8001)
